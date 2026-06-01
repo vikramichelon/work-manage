@@ -15,8 +15,18 @@
         })();
     </script>
 
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    {{-- Inter font (replaces the @import that used to live inside style.css) --}}
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="stylesheet" href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700">
+
+    {{-- Bootstrap + Font Awesome from CDN (no build step) --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    {{-- Custom theme — must come AFTER Bootstrap so overrides take effect.
+         url() detects the current request root, so it works for both
+         XAMPP (localhost/work-manage/public/...) AND artisan serve (127.0.0.1:8000/...) --}}
+    <link rel="stylesheet" href="{{ url('assets/style.css') }}">
 </head>
 <body>
     <div id="app">
@@ -134,6 +144,35 @@
             @yield('content')
         </main>
     </div>
+
+    {{-- Bootstrap JS (dropdowns/collapse/modals) + SortableJS (kanban drag-drop) --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        // SortableJS UMD build exposes the global already; ensure window.Sortable
+        // for any inline scripts that read it.
+        if (typeof Sortable !== 'undefined') window.Sortable = Sortable;
+    </script>
+
+    {{-- Password show/hide toggle — any <button class="wm-password-toggle" data-target="<input-id>"> --}}
+    <script>
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.wm-password-toggle');
+            if (!btn) return;
+            var input = document.getElementById(btn.dataset.target);
+            if (!input) return;
+            var icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+                btn.setAttribute('aria-label', 'Hide password');
+            } else {
+                input.type = 'password';
+                if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+                btn.setAttribute('aria-label', 'Show password');
+            }
+        });
+    </script>
 
     {{-- Theme toggle: switch + persist + reflect icon (works for both desktop + mobile buttons) --}}
     <script>
