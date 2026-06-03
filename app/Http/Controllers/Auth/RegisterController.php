@@ -50,7 +50,9 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            // Allow re-registering an email whose previous account was soft-deleted.
+            'email' => ['required', 'string', 'email', 'max:255',
+                \Illuminate\Validation\Rule::unique('users')->whereNull('deleted_at')],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }

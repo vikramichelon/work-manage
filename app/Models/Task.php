@@ -93,8 +93,8 @@ class Task extends Model
     /**
      * Order rules (applied in this order):
      *  1. Open tasks first, Done at the very bottom.
-     *  2. Within each group: priority High → Medium → Low.
-     *  3. Then by nearest due date (NULL last).
+     *  2. Done tasks: latest completed first (completed_at DESC) — priority/due_date ignored.
+     *  3. Open tasks: priority High → Medium → Low, then nearest due date (NULL last).
      */
     public function scopeByPriority(Builder $query): Builder
     {
@@ -104,6 +104,10 @@ class Task extends Model
         return $query
             // false (0) = open → first; true (1) = done → last
             ->orderByRaw("status = '{$doneVal}'")
+            // Done tasks: latest completed first (the CASE returns NULL for open
+            // tasks, so it has no effect on their ordering).
+            ->orderByRaw("CASE WHEN status = '{$doneVal}' THEN UNIX_TIMESTAMP(completed_at) END DESC")
+            // Open tasks: priority then due_date (Done tasks already sorted above).
             ->orderByRaw("FIELD(priority, {$order})")
             ->orderByRaw('due_date IS NULL, due_date');
     }

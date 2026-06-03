@@ -48,7 +48,7 @@
                 <div class="col-md-8">
                     <div class="card border-0 h-100">
                         <div class="card-body">
-                            <h2 class="h6 text-secondary text-uppercase small mb-2">Description (kya task hai)</h2>
+                            <h2 class="h6 text-secondary text-uppercase small mb-2">Description</h2>
                             <p class="mb-3" style="white-space: pre-wrap; word-break: break-word;">{{ $task->description ?: 'No description provided.' }}</p>
 
                             @if ($task->status === App\Enums\TaskStatus::HOLD && $task->hold_reason)
@@ -109,8 +109,8 @@
                     @forelse ($task->attachments as $att)
                         <div class="d-flex align-items-center gap-3 py-2 {{ ! $loop->last ? 'border-bottom' : '' }}">
                             @if ($att->isImage())
-                                <a href="{{ route('attachments.download', $att) }}" target="_blank">
-                                    <img src="{{ route('attachments.download', $att) }}" alt="{{ $att->original_name }}"
+                                <a href="{{ $att->publicUrl() }}" target="_blank">
+                                    <img src="{{ $att->publicUrl() }}" alt="{{ $att->original_name }}"
                                          style="width:40px;height:40px;object-fit:cover;border-radius:.375rem;border:1px solid var(--wm-border)">
                                 </a>
                             @else

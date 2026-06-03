@@ -52,6 +52,8 @@ class TaskController extends Controller
             'completed_at' => $data['status'] === TaskStatus::DONE->value ? now() : null,
         ]);
 
+        $this->saveUploadedAttachments($request, $task);
+
         // Always return to the All Tasks view — user explicitly asked for this.
         return redirect()->route('home')->with('status', 'Task created.');
     }
@@ -119,7 +121,34 @@ class TaskController extends Controller
 
         $task->update($data);
 
+        $this->saveUploadedAttachments($request, $task);
+
         return redirect()->route('home')->with('status', 'Task updated.');
+    }
+
+    /**
+     * Accept file inputs named "attachments[]" from the task form and write
+     * them as Attachment rows. Validates per-file (size + mime). Empty input
+     * is a no-op, so legacy callers that don't include the field still work.
+     */
+    private function saveUploadedAttachments(Request $request, Task $task): void
+    {
+        if (! $request->hasFile('attachments')) {
+            return;
+        }
+
+        $request->validate([
+            'attachments.*' => [
+                'file', 'max:10240',
+                'mimes:jpg,jpeg,png,gif,webp,bmp,svg,heic,pdf,doc,docx,xls,xlsx,csv,txt,zip',
+            ],
+        ]);
+
+        foreach ($request->file('attachments') as $file) {
+            \App\Http\Controllers\AttachmentController::storeUploaded(
+                $file, $task, $request->user()->id
+            );
+        }
     }
 
     public function destroy(Task $task): RedirectResponse

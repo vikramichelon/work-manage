@@ -12,7 +12,7 @@
             <h1 class="h4 mb-3"><i class="fa-solid fa-circle-plus text-primary me-2"></i>New Task</h1>
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('tasks.store') }}">
+                    <form method="POST" action="{{ route('tasks.store') }}" enctype="multipart/form-data">
                         @include('tasks._form', ['submitLabel' => 'Create task'])
                     </form>
                 </div>

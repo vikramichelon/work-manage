@@ -252,8 +252,8 @@
             @forelse ($task->attachments as $att)
                 <div class="d-flex align-items-center gap-2 py-2 {{ ! $loop->last ? 'border-bottom' : '' }}">
                     @if ($att->isImage())
-                        <a href="{{ route('attachments.download', $att) }}" target="_blank">
-                            <img src="{{ route('attachments.download', $att) }}" alt="{{ $att->original_name }}"
+                        <a href="{{ $att->publicUrl() }}" target="_blank">
+                            <img src="{{ $att->publicUrl() }}" alt="{{ $att->original_name }}"
                                  style="width:32px;height:32px;object-fit:cover;border-radius:.375rem;border:1px solid var(--wm-border)">
                         </a>
                     @else

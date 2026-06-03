@@ -54,9 +54,10 @@ class UserController extends Controller
     }
 
     /**
-     * Delete a user. Re-attributes their created tasks/categories to the
-     * acting admin first (otherwise the FK cascade would wipe that data).
-     * Assigned tasks auto-unassign; comments/attachments/activities anonymise.
+     * Soft-delete a user. Row stays in DB with deleted_at timestamp; user
+     * disappears from lists and can no longer log in (Laravel auth respects
+     * SoftDeletes). All foreign-key references (tasks, comments, categories)
+     * stay intact — restoring the user would bring everything back.
      */
     public function destroy(Request $request, User $user): RedirectResponse
     {
@@ -70,18 +71,9 @@ class UserController extends Controller
             return back()->with('error', 'Cannot delete the last admin — at least one admin must remain.');
         }
 
-        $newOwnerId = $request->user()->id;
         $name = $user->name;
+        $user->delete(); // soft delete — sets deleted_at, row stays in DB
 
-        DB::transaction(function () use ($user, $newOwnerId) {
-            // Re-attribute the cascade-on-delete columns so their data survives.
-            Task::where('created_by', $user->id)->update(['created_by' => $newOwnerId]);
-            Category::where('created_by', $user->id)->update(['created_by' => $newOwnerId]);
-            // Everything else (assigned_to, comments.user_id, attachments.user_id,
-            // activities.user_id, activity_templates.created_by) auto-NULLs via FK.
-            $user->delete();
-        });
-
-        return back()->with('status', "User '{$name}' deleted. Their tasks and categories were re-attributed to you.");
+        return back()->with('status', "User '{$name}' deleted (their data and history are preserved).");
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Attachment extends Model
 {
@@ -25,6 +26,19 @@ class Attachment extends Model
     public function isImage(): bool
     {
         return $this->mime_type && str_starts_with($this->mime_type, 'image/');
+    }
+
+    /**
+     * Direct URL for inline use (e.g. <img src>). Returns the public-storage
+     * URL when the file lives on the public disk; falls back to the auth-
+     * protected download route for files still on the legacy local disk.
+     */
+    public function publicUrl(): string
+    {
+        if (Storage::disk('public')->exists($this->stored_path)) {
+            return Storage::disk('public')->url($this->stored_path);
+        }
+        return route('attachments.download', $this);
     }
 
     /** Human-readable size, e.g. "245 KB" or "1.2 MB". */

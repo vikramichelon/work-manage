@@ -38,9 +38,34 @@ return [
             'report' => false,
         ],
 
+        /*
+         * 'public' disk — where user-uploaded images / attachments live.
+         *
+         * By default points to storage/app/public (standard Laravel layout).
+         *
+         * On servers using the "split deployment" pattern (e.g. Cloudways
+         * shared hosting where public_html/ is the web root and the Laravel
+         * app sits inside public_html/work-manage/), set PUBLIC_DISK_ROOT
+         * in .env so uploads land in a web-reachable folder:
+         *
+         *     PUBLIC_DISK_ROOT=../storage
+         *
+         * That resolves to public_html/storage/ — directly visible at the
+         * URL /storage/... without needing the standard `storage:link`.
+         */
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => (function () {
+                $custom = env('PUBLIC_DISK_ROOT');
+                if (! $custom) {
+                    return storage_path('app/public');
+                }
+                // Absolute path (unix /... or windows C:\...) → use as-is.
+                // Otherwise treat as relative to the project base.
+                return (str_starts_with($custom, '/') || preg_match('/^[A-Za-z]:[\\\\\/]/', $custom))
+                    ? $custom
+                    : base_path($custom);
+            })(),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,

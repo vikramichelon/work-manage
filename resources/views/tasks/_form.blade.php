@@ -94,7 +94,7 @@
     </div>
 
     <div class="col-md-4">
-        <label for="assigned_to" class="form-label">Assign to (kaun karega)</label>
+        <label for="assigned_to" class="form-label">Assign to</label>
         <select id="assigned_to" name="assigned_to" class="form-select @error('assigned_to') is-invalid @enderror">
             <option value="">— Unassigned —</option>
             @foreach ($assignableUsers as $user)
@@ -107,7 +107,7 @@
     </div>
 
     <div class="col-md-6">
-        <label for="assigned_by_name" class="form-label">Assign person <span class="text-secondary small">(kisne diya)</span></label>
+        <label for="assigned_by_name" class="form-label">Assign person <span class="text-secondary small"></span></label>
         <input type="text" id="assigned_by_name" name="assigned_by_name"
                value="{{ old('assigned_by_name', $task->assigned_by_name) }}"
                class="form-control @error('assigned_by_name') is-invalid @enderror"
@@ -116,7 +116,7 @@
     </div>
 
     <div class="col-md-6">
-        <label for="assigned_at" class="form-label">Assign date <span class="text-secondary small">(kab mila)</span></label>
+        <label for="assigned_at" class="form-label">Assign date </label>
         <input type="date" id="assigned_at" name="assigned_at"
                value="{{ old('assigned_at', $task->assigned_at?->format('Y-m-d')) }}"
                class="form-control @error('assigned_at') is-invalid @enderror">
@@ -124,7 +124,7 @@
     </div>
 
     <div class="col-md-6">
-        <label for="due_date" class="form-label">Timeline <span class="text-secondary small">(kab tak)</span></label>
+        <label for="due_date" class="form-label">Timeline</label>
         <input type="date" id="due_date" name="due_date"
                value="{{ old('due_date', $task->due_date?->format('Y-m-d')) }}"
                class="form-control @error('due_date') is-invalid @enderror">
@@ -151,7 +151,7 @@
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Actual time <span class="text-secondary small">(kitna laga)</span></label>
+        <label class="form-label">Actual time</label>
         <div class="input-group @error('actual_hours') is-invalid @enderror">
             <input type="number" name="actual_hours_h" min="0" max="999"
                    value="{{ old('actual_hours_h', $actH) }}" class="form-control" placeholder="0">
@@ -188,7 +188,7 @@
     </div>
 
     <div class="col-12">
-        <label for="description" class="form-label">Description (kya task hai)</label>
+        <label for="description" class="form-label">Description</label>
         <textarea id="description" name="description" rows="3"
                   class="form-control @error('description') is-invalid @enderror"
                   placeholder="Task ki details">{{ old('description', $task->description) }}</textarea>
@@ -197,12 +197,28 @@
 
     <div class="col-12">
         <label for="delay_reason" class="form-label">
-            Notes <span class="text-secondary small">(koi issue ya delay ho to likho)</span>
+            Notes
         </label>
         <textarea id="delay_reason" name="delay_reason" rows="2"
                   class="form-control @error('delay_reason') is-invalid @enderror"
                   placeholder="Optional">{{ old('delay_reason', $task->delay_reason) }}</textarea>
         @error('delay_reason') <div class="invalid-feedback">{{ $message }}</div> @enderror
+    </div>
+
+    {{-- File attachments (images, PDFs, docs). Multiple files allowed.
+         Hits the same logic as the standalone attachments form. --}}
+    <div class="col-12">
+        <label for="attachments" class="form-label">
+            <i class="fa-solid fa-paperclip me-1"></i>Attachments
+            <span class="text-secondary fw-normal">(optional, multiple files)</span>
+        </label>
+        <input type="file" id="attachments" name="attachments[]" multiple
+               accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip"
+               class="form-control @error('attachments.*') is-invalid @enderror">
+        <div class="form-text">
+            Max 10 MB per file. Images (jpg, png, gif, webp, bmp, svg, heic), PDF, DOC/X, XLS/X, CSV, TXT, ZIP.
+        </div>
+        @error('attachments.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
     </div>
 </div>
 
